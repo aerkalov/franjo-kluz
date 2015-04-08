@@ -1045,6 +1045,7 @@ We only build 12 of them, so be careful!";
       };
 
       this.hangar.click = function (e) {
+        window.location = 'https://github.com/aerkalov/franjo-kluz/wiki';
       };
 
 
