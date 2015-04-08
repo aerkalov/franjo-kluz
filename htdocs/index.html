@@ -1,0 +1,56 @@
+<!DOCTYPE HTML>
+<html>
+ <head>
+  <title>Franjo Kluz</title>
+  <meta charset="utf-8"> 
+  <style>
+    @font-face {
+        font-family:"SilkscreenBold";
+        font-weight: bold;
+        src: url("assets/fonts/slkscreb-webfont.woff") format('woff');
+    }
+
+    @font-face {
+        font-family:"Silkscreen";
+        font-weight: bold;
+        src: url("assets/fonts/slkscre-webfont.woff") format('woff');
+    }
+
+    body {
+        margin: 0;
+        padding: 0;
+        background-color: white;
+    }
+ </style>
+
+ <script src="lib/underscore-min.js"></script>  
+ <script src="lib/howler.min.js"></script>
+ <script src="lib/pixi.dev.js"></script>
+ <script src="franjo.js"></script>  
+
+ <script>   
+   function _check() {
+    if (window.franjo) {
+      franjo.game.init();
+      return;
+    }
+
+    setTimeout(_check, 100);
+   };
+
+   window.WebFontConfig = {
+      custom: {
+        families: ['Silkscreen', 'SilkscreenBold']
+      },
+      active: function () {
+        _check();
+      }
+    };
+  </script>
+
+  <script src="http://ajax.googleapis.com/ajax/libs/webfont/1.5.6/webfont.js"></script>
+
+</head>
+<body>
+</body>
+</html>
