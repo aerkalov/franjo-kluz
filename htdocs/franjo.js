@@ -59,7 +59,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         this.setTexture(self.texture1);
       };
 
-      this.button.click = function (e) {
+      this.button.click = this.button.tap = function (e) {
         self.click(e);
       };  
 
@@ -332,6 +332,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
     };
 
+    Screen.prototype.tap = function (evt) {
+
+    };
+
     Screen.prototype.animate = function () {
       var i = 0;
 
@@ -384,7 +388,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
           this.bubble1.hide();
         }],
         [12, function () {
-          this.bubble2.sayText("Mi smo vremenom prozeti, a ono tek po nama ima svoj smisao.");
+          this.bubble2.sayText("Mi smo vremenom prozeti, a ono tek po\nnama ima svoj smisao.");
         }],
         [15, function () {
           this.bubble2.hide();
@@ -415,7 +419,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
       this.nextButton = new  ButtonNext();
       this.nextButton.position.set(700, 500);
-      this.nextButton.click = function (e) {
+      this.nextButton.click = this.nextButton.tap = function (e) {
         self.sound.fade(1.0, 0, 1000);
       };
 
@@ -574,7 +578,7 @@ Yugoslavia would be occupied by Axis powers.";
 
       this.nextButton = new  ButtonNext();
       this.nextButton.position.set(700, 500);
-      this.nextButton.click = function (e) {
+      this.nextButton.click = this.nextButton.tap = function (e) {
           self.sound.fade(1.0, 0, 1000);
       };
 
@@ -754,7 +758,7 @@ organisers to carry it out.";
 
       this.nextButton = new  ButtonNext();
       this.nextButton.position.set(700, 500);
-      this.nextButton.click = function (e) {
+      this.nextButton.click = this.nextButton.tap = function (e) {
         self.sound.fade(1.0, 0, 1000);
       };
 
@@ -848,8 +852,8 @@ of the Royal Yugoslav Air Force by the Luftwaffe.";
 
     var Ikarus = function () {
       var frames = [
-        PIXI.Texture.fromImage('assets/images/sprite_ikarus_1.png'),
-        PIXI.Texture.fromImage('assets/images/sprite_ikarus_2.png'),
+        PIXI.Texture.fromFrame('assets/images/sprite_ikarus_1.png'),
+        PIXI.Texture.fromFrame('assets/images/sprite_ikarus_2.png'),
       ];
 
       PIXI.MovieClip.call(this, frames);
@@ -859,6 +863,9 @@ of the Royal Yugoslav Air Force by the Luftwaffe.";
       this.position.x = 150;
       this.maxSpeed = 10;
       this.rotation = 0;
+
+      this.scale.x = 0.5;
+      this.scale.y = 0.5;
 
       this.angle = 0;
       this.strangeThings = [];
@@ -892,8 +899,12 @@ of the Royal Yugoslav Air Force by the Luftwaffe.";
         this.speed.y = 0;     
       }
 
-      if (this.position.y > 590) {
-        this.position.y = 590;
+      // if (this.position.y > 590) {
+      //   this.position.y = 590;
+
+      if (this.position.y > 380) {
+        this.position.y = 380;
+
         this.speed.y = 0;
         this.angle = 0;
       }
@@ -939,7 +950,11 @@ of the Royal Yugoslav Air Force by the Luftwaffe.";
 
     var InstructionsScreen = function () {
       this.assetsToLoader = [
-        "assets/images/sprite_ikarus_1.png"
+        "assets/images/sprite_ikarus_1.png",
+        "assets/images/sprite_ikarus_2.png",
+        "assets/images/sprite_hand.png",
+        "assets/images/sprite_space.png",
+        "assets/images/sprite_space_2.png"        
       ];
       this.soundsToLoad = [];
 
@@ -956,27 +971,132 @@ of the Royal Yugoslav Air Force by the Luftwaffe.";
       this.ikarus.position.y = 270;
 
 
-      var instruction = new PIXI.Text("PRESS SPACE TO FLY", { font: "36px Silkscreen", fill: '#ffd9aa', stroke: '#552f00', align: "left" });
+      var instruction = new PIXI.Text("FLYING", { font: "36px Silkscreen", fill: '#ffd9aa', stroke: '#552f00', align: "left" });
       instruction.position.x = 400 - instruction.width / 2;
       instruction.position.y = 50;
       this.container.addChild(instruction);
 
-      var desc = "This is your Rogozarski IK-3 airplane.\n\
-Honor and Pride of Yugoslav aircraft industry!\n\
-We only build 12 of them, so be careful!";
-
-      var instruction2 = new PIXI.Text(desc, { font: "20px Silkscreen", fill: '#ffd9aa', stroke: '#552f00', align: "center" });
-      instruction2.position.x = 400 - instruction2.width / 2;
-      instruction2.position.y = 400;
+      var instruction2 = new PIXI.Text("TOUCH LEFT SIDE OF SCREEN", { font: "20px Silkscreen", fill: '#ffd9aa', stroke: '#552f00', align: "center" });
+      instruction2.position.x = 50;
+      instruction2.position.y = 390;
       this.container.addChild(instruction2);
 
+
+      var instruction3 = new PIXI.Text("PRESS SPACE", { font: "20px Silkscreen", fill: '#ffd9aa', stroke: '#552f00', align: "center" });
+      instruction3.position.x = 570;
+      instruction3.position.y = 390;
+      this.container.addChild(instruction3);
+
+      this.hand = new PIXI.Sprite(PIXI.Texture.fromFrame("assets/images/sprite_hand.png"));
+      this.hand.position.x = 118 + 30;   
+      this.hand.position.y = 440;
+
+      var graphics = new PIXI.Graphics();
+      graphics.position.set(140 + 30, 450);
+      var f = new PIXI.PixelateFilter();
+      f.size.x = 4;
+      f.size.y = 4;
+      graphics.filters = [f];
+      this.container.addChild(graphics);
+
+
+      var hand2 = new PIXI.Sprite(PIXI.Texture.fromFrame("assets/images/sprite_hand.png"));
+      hand2.position.x = 625;   
+      hand2.position.y = 490 + 30;
+
+      var handTexture01 = PIXI.Texture.fromFrame("assets/images/sprite_space.png");
+      var handTexture02 = PIXI.Texture.fromFrame("assets/images/sprite_space_2.png");
+
+      var space = new PIXI.Sprite(handTexture01);
+      space.position.x = 550;   
+      space.position.y = 440;
+      this.container.addChild(space);
+
+
+      this.operations.push(new Work({
+        'init': function () {
+          this.direction = 0;
+          this.direction2 = 0;
+          this.circle = -1;
+          this.marked = -1;
+        },
+        'callback': function () {
+          if (this.circle >= 0) {
+            graphics.clear();
+            graphics.beginFill(0xd4a66a);
+            graphics.drawCircle(0, 0, Math.abs(this.circle));
+            graphics.endFill();   
+
+            this.circle += 1;
+            console.log(this.circle);
+
+            if (this.circle > 12) {
+              this.circle = -1;
+              graphics.clear();
+            }
+          } 
+
+          if (this.direction == 0) {
+            self.hand.position.y += 2;
+          } else {
+            self.hand.position.y -= 2;
+          }
+
+          if  (self.hand.position.y < 440) {
+            self.hand.position.y = 440;
+            this.direction = 0;
+            this.circle = 1;
+          } 
+          if (self.hand.position.y > 470) {
+            self.hand.position.y = 470;
+            this.direction = 1;
+          }
+
+          if (this.direction2 == 0) {
+            hand2.position.y += 2;
+          } else {
+            hand2.position.y -= 2;
+          }
+
+          if (this.marked === 0) {
+            space.setTexture(handTexture01);
+            this.marked = -1;
+          }
+
+          if (this.marked > 0) {
+            this.marked -= 1;
+          }        
+
+          if  (hand2.position.y < 490) {
+            hand2.position.y = 490;
+            this.direction2 = 0;
+            this.marked = 5;
+            space.setTexture(handTexture02);
+          } 
+
+          if (hand2.position.y > 520) {
+            hand2.position.y = 520;
+            this.direction2 = 1;
+          }
+        }
+      }));
+
+
+      this.container.addChild(this.hand);
+      this.container.addChild(hand2);
+
       this.container.addChild(this.ikarus);
+      win.franjo.data.stage.interactive = true;
 
       this.operations.push(new Work({
         'callback': function () {
           self.ikarus.update();
         }
       }));
+    };
+
+    InstructionsScreen.prototype.tap = function (e) {
+        this.ikarus.speedUp();
     };
 
     InstructionsScreen.prototype.onKeyDown = function (e) {
@@ -1044,7 +1164,7 @@ We only build 12 of them, so be careful!";
         self.showDescription();
       };
 
-      this.hangar.click = function (e) {
+      this.hangar.click = this.hangar.tap = function (e) {
         window.location = 'https://github.com/aerkalov/franjo-kluz/wiki';
       };
 
@@ -1086,7 +1206,7 @@ We only build 12 of them, so be careful!";
         self.showDescription();
       };
 
-      this.avion.click = function (e) {
+      this.avion.click = this.avion.tap = function (e) {
         self.sound.fade(1.0, 0, 2000);
         self.container.filters = [new PIXI.PixelateFilter()];
       };
@@ -1212,8 +1332,15 @@ We only build 12 of them, so be careful!";
 
     var _init = function () {
       win.franjo.data.stage = new PIXI.Stage(0xaa7839);
+      win.franjo.data.stage.interactive = true;
 
       win.franjo.data.renderer = PIXI.autoDetectRenderer(800, 600);
+
+      win.franjo.data.stage.tap = function (e) {
+        if (win.franjo.data.currentScreen.isReady) {
+          win.franjo.data.currentScreen.tap(e);
+        }
+      };
 
       // add the renderer view element to the DOM
       document.body.appendChild(win.franjo.data.renderer.view);
