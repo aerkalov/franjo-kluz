@@ -944,7 +944,7 @@ of the Royal Yugoslav Air Force by the Luftwaffe.";
 
 
     /**
-      BelgradeScreen
+      InstructionsScreen
     */
 
 
@@ -954,9 +954,14 @@ of the Royal Yugoslav Air Force by the Luftwaffe.";
         "assets/images/sprite_ikarus_2.png",
         "assets/images/sprite_hand.png",
         "assets/images/sprite_space.png",
-        "assets/images/sprite_space_2.png"        
+        "assets/images/sprite_space_2.png",
+        "assets/images/sprite_enter_1.png",
+        "assets/images/sprite_enter_2.png",
+        "assets/images/sprite_bullet.png",
+        "assets/images/sprite_circle.png"        
       ];
       this.soundsToLoad = [];
+      this.bullets = [];
 
       Screen.call(this);
     };
@@ -967,53 +972,83 @@ of the Royal Yugoslav Air Force by the Luftwaffe.";
     InstructionsScreen.prototype.init = function () {
       var self = this;
 
+      this.instructionState = 0;
+      this.flyingClicked = 0;
+      this.shootingClicked = 0;
+
       this.ikarus = new Ikarus();
       this.ikarus.position.y = 270;
 
+      this.instruction = new PIXI.Text("FLYING", { font: "36px Silkscreen", fill: '#ffd9aa', stroke: '#552f00', align: "left" });
+      this.instruction.position.x = 400 - this.instruction.width / 2;
+      this.instruction.position.y = 50;
+      this.container.addChild(this.instruction);
 
-      var instruction = new PIXI.Text("FLYING", { font: "36px Silkscreen", fill: '#ffd9aa', stroke: '#552f00', align: "left" });
-      instruction.position.x = 400 - instruction.width / 2;
-      instruction.position.y = 50;
-      this.container.addChild(instruction);
+      this.instruction2 = new PIXI.Text("TOUCH LEFT SIDE OF SCREEN", { font: "20px Silkscreen", fill: '#ffd9aa', stroke: '#552f00', align: "center" });
+      this.instruction2.position.x = 50;
+      this.instruction2.position.y = 390;
+      this.container.addChild(this.instruction2);
 
-      var instruction2 = new PIXI.Text("TOUCH LEFT SIDE OF SCREEN", { font: "20px Silkscreen", fill: '#ffd9aa', stroke: '#552f00', align: "center" });
-      instruction2.position.x = 50;
-      instruction2.position.y = 390;
-      this.container.addChild(instruction2);
-
-
-      var instruction3 = new PIXI.Text("PRESS SPACE", { font: "20px Silkscreen", fill: '#ffd9aa', stroke: '#552f00', align: "center" });
-      instruction3.position.x = 570;
-      instruction3.position.y = 390;
-      this.container.addChild(instruction3);
+      this.instruction3 = new PIXI.Text("PRESS SPACE", { font: "20px Silkscreen", fill: '#ffd9aa', stroke: '#552f00', align: "center" });
+      this.instruction3.position.x = 570;
+      this.instruction3.position.y = 390;
+      this.container.addChild(this.instruction3);
 
       this.hand = new PIXI.Sprite(PIXI.Texture.fromFrame("assets/images/sprite_hand.png"));
       this.hand.position.x = 118 + 30;   
       this.hand.position.y = 440;
 
-      var graphics = new PIXI.Graphics();
-      graphics.position.set(140 + 30, 450);
+      this.graphics = new PIXI.Graphics();
+      this.graphics.position.set(140 + 30, 450);
       var f = new PIXI.PixelateFilter();
       f.size.x = 4;
       f.size.y = 4;
-      graphics.filters = [f];
-      this.container.addChild(graphics);
+      this.graphics.filters = [f];
+      this.container.addChild(this.graphics);
 
 
-      var hand2 = new PIXI.Sprite(PIXI.Texture.fromFrame("assets/images/sprite_hand.png"));
-      hand2.position.x = 625;   
-      hand2.position.y = 490 + 30;
+      this.hand2 = new PIXI.Sprite(PIXI.Texture.fromFrame("assets/images/sprite_hand.png"));
+      this.hand2.position.x = 625;   
+      this.hand2.position.y = 490 + 30;
 
       var handTexture01 = PIXI.Texture.fromFrame("assets/images/sprite_space.png");
       var handTexture02 = PIXI.Texture.fromFrame("assets/images/sprite_space_2.png");
 
-      var space = new PIXI.Sprite(handTexture01);
-      space.position.x = 550;   
-      space.position.y = 440;
-      this.container.addChild(space);
+      this.enterTexture01 = PIXI.Texture.fromFrame("assets/images/sprite_enter_1.png");
+      this.enterTexture02 = PIXI.Texture.fromFrame("assets/images/sprite_enter_2.png");
+
+      this.bulletTexture = PIXI.Texture.fromFrame("assets/images/sprite_bullet.png");
+
+      this.circleTexture = PIXI.Texture.fromFrame("assets/images/sprite_circle.png");
+
+      this.circle = new PIXI.Sprite(this.circleTexture);
+      this.circle.position.x = 610;   
+      this.circle.position.y = 220;
+      this.container.addChild(this.circle);
+
+      this.counter = new PIXI.Text("7", { font: "32px Silkscreen", fill: '#ffd9aa', stroke: '#552f00', align: "center" });
+      this.counter.position.x = 624;
+      this.counter.position.y = 224;
+      this.container.addChild(this.counter);
+
+      this.space = new PIXI.Sprite(handTexture01);
+      this.space.position.x = 550;   
+      this.space.position.y = 440;
+      this.container.addChild(this.space);
+
+      _(20).times(function (idx) {
+          var bullet  = new PIXI.Sprite(self.bulletTexture);
+          bullet.position.x = -100;   
+          bullet.position.y = -100;
+          bullet.visible = false;
+
+          self.bullets.push(bullet);    
+
+          self.container.addChild(bullet);
+      });
 
 
-      this.operations.push(new Work({
+      this.work1 = new Work({
         'init': function () {
           this.direction = 0;
           this.direction2 = 0;
@@ -1022,17 +1057,16 @@ of the Royal Yugoslav Air Force by the Luftwaffe.";
         },
         'callback': function () {
           if (this.circle >= 0) {
-            graphics.clear();
-            graphics.beginFill(0xd4a66a);
-            graphics.drawCircle(0, 0, Math.abs(this.circle));
-            graphics.endFill();   
+            self.graphics.clear();
+            self.graphics.beginFill(0xd4a66a);
+            self.graphics.drawCircle(0, 0, Math.abs(this.circle));
+            self.graphics.endFill();   
 
             this.circle += 1;
-            console.log(this.circle);
 
             if (this.circle > 12) {
               this.circle = -1;
-              graphics.clear();
+              self.graphics.clear();
             }
           } 
 
@@ -1053,13 +1087,13 @@ of the Royal Yugoslav Air Force by the Luftwaffe.";
           }
 
           if (this.direction2 == 0) {
-            hand2.position.y += 2;
+            self.hand2.position.y += 2;
           } else {
-            hand2.position.y -= 2;
+            self.hand2.position.y -= 2;
           }
 
           if (this.marked === 0) {
-            space.setTexture(handTexture01);
+            self.space.setTexture(handTexture01);
             this.marked = -1;
           }
 
@@ -1067,23 +1101,104 @@ of the Royal Yugoslav Air Force by the Luftwaffe.";
             this.marked -= 1;
           }        
 
-          if  (hand2.position.y < 490) {
-            hand2.position.y = 490;
+          if  (self.hand2.position.y < 490) {
+            self.hand2.position.y = 490;
             this.direction2 = 0;
             this.marked = 5;
-            space.setTexture(handTexture02);
+            self.space.setTexture(handTexture02);
           } 
 
-          if (hand2.position.y > 520) {
-            hand2.position.y = 520;
+          if (self.hand2.position.y > 520) {
+            self.hand2.position.y = 520;
             this.direction2 = 1;
           }
         }
-      }));
+      });
+
+      this.work2 = new Work({
+        'init': function () {
+          this.direction = 0;
+          this.direction2 = 0;
+          this.circle = -1;
+          this.marked = -1;
+        },
+        'callback': function () {
+          _.each(self.bullets, function (bullet, idx) {
+            if (bullet.visible === false) {              
+              return;
+            }
+            bullet.position.x += 20 * bullet._x;
+            bullet.position.y += 20 * bullet._y;
+
+            if (bullet.position.x > 800) {
+              bullet.visible = false;
+            }
+          });
+
+          if (this.circle >= 0) {
+            self.graphics.clear();
+            self.graphics.beginFill(0xd4a66a);
+            self.graphics.drawCircle(0, 0, Math.abs(this.circle));
+            self.graphics.endFill();   
+
+            this.circle += 1;
+
+            if (this.circle > 12) {
+              this.circle = -1;
+              self.graphics.clear();
+            }
+          } 
+
+          if (this.direction == 0) {
+            self.hand.position.y += 2;
+          } else {
+            self.hand.position.y -= 2;
+          }
+
+          if  (self.hand.position.y < 440) {
+            self.hand.position.y = 440;
+            this.direction = 0;
+            this.circle = 1;
+          } 
+          if (self.hand.position.y > 470) {
+            self.hand.position.y = 470;
+            this.direction = 1;
+          }
+
+          if (this.direction2 == 0) {
+            self.hand2.position.y += 2;
+          } else {
+            self.hand2.position.y -= 2;
+          }
+
+          if (this.marked === 0) {
+            self.space.setTexture(self.enterTexture01);
+            this.marked = -1;
+          }
+
+          if (this.marked > 0) {
+            this.marked -= 1;
+          }        
+
+          if  (self.hand2.position.y < 490) {
+            self.hand2.position.y = 490;
+            this.direction2 = 0;
+            this.marked = 5;
+            self.space.setTexture(self.enterTexture02);
+          } 
+
+          if (self.hand2.position.y > 520) {
+            self.hand2.position.y = 520;
+            this.direction2 = 1;
+          }
+        }
+      });
+
+      this.operations.push(this.work1);
 
 
       this.container.addChild(this.hand);
-      this.container.addChild(hand2);
+      this.container.addChild(this.hand2);
 
       this.container.addChild(this.ikarus);
       win.franjo.data.stage.interactive = true;
@@ -1099,8 +1214,67 @@ of the Royal Yugoslav Air Force by the Luftwaffe.";
         this.ikarus.speedUp();
     };
 
+    InstructionsScreen.prototype.setSecondInstructions = function () {
+      this.operations.splice(0, 1);
+      this.operations.push(this.work2);
+
+      this.instructionState = 1;
+
+      this.instruction.setText('SHOOTING');
+      this.instruction.position.x = 400 - this.instruction.width / 2;
+
+      this.instruction2.setText('PRESS ENTER');
+      this.instruction2.position.x = 100;
+
+      this.instruction3.setText('TOUCH RIGHT SIDE OF SCREEN');
+      this.instruction3.position.x = 400;
+
+      this.space.setTexture(this.enterTexture01);
+      this.space.position.x = 130;   
+
+      this.hand.position.x = 540;   
+      this.graphics.position.set(22 + 540 , 450);
+
+      this.hand2.position.x = 180;   
+
+      this.counter.setText("7");
+    };
+
     InstructionsScreen.prototype.onKeyDown = function (e) {
+      if (e.keyCode == 13) {
+        if (this.instructionState == 1) {
+          this.shootingClicked += 1;
+
+          this.counter.setText(7 - this.shootingClicked);
+
+          for (var i = 0; i < this.bullets.length; i++) {
+            if (this.bullets[i].visible == false) {
+
+              var self = this;
+              var bullet = self.bullets[i];
+              bullet._y = (self.ikarus.angle < 0? -1: 1) * Math.sin(Math.abs(self.ikarus.rotation));
+              bullet._x = Math.cos(Math.abs(self.ikarus.rotation));
+
+              bullet.position.x = self.ikarus.position.x;   
+              bullet.position.y = self.ikarus.position.y;
+              bullet.visible = true;
+
+              break;
+            }
+          }
+        }
+      }
+
       if (e.keyCode == 32) {
+        if (this.instructionState == 0) {
+          this.flyingClicked += 1;
+          this.counter.setText(7 - this.flyingClicked);
+
+          if (this.flyingClicked == 7) {
+            this.setSecondInstructions();
+          }
+        } 
+
         this.ikarus.speedUp();
       }
     };
