@@ -845,12 +845,12 @@ of the Royal Yugoslav Air Force by the Luftwaffe.";
     };
 
     /**
-      Ikarus
+      IK3
 
 
     */
 
-    var Ikarus = function () {
+    var IK3 = function () {
       var frames = [
         PIXI.Texture.fromFrame('assets/images/sprite_ikarus_1.png'),
         PIXI.Texture.fromFrame('assets/images/sprite_ikarus_2.png'),
@@ -876,9 +876,9 @@ of the Royal Yugoslav Air Force by the Luftwaffe.";
       this._z = 0;
     };
 
-    Ikarus.prototype = Object.create(PIXI.MovieClip.prototype);
+    IK3.prototype = Object.create(PIXI.MovieClip.prototype);
 
-    Ikarus.prototype.speedUp = function () {
+    IK3.prototype.speedUp = function () {
       var self = this;
 
       this.speed.y -= 5;
@@ -888,7 +888,7 @@ of the Royal Yugoslav Air Force by the Luftwaffe.";
       });
     };
 
-    Ikarus.prototype.update = function () {      
+    IK3.prototype.update = function () {      
       this.speed.y += this.gravity;
       this.speed.y = Math.min(this.speed.y, this.maxSpeed);
       this.speed.y = Math.max(this.speed.y, -this.maxSpeed);
@@ -934,7 +934,7 @@ of the Royal Yugoslav Air Force by the Luftwaffe.";
       this.rotation = 0.01745 * this.angle;
     };
 
-    Ikarus.prototype.reset = function () {
+    IK3.prototype.reset = function () {
       this.position.y = 200;
       this.speed.y = 0;
       this.rotation = 0;
@@ -976,7 +976,7 @@ of the Royal Yugoslav Air Force by the Luftwaffe.";
       this.flyingClicked = 0;
       this.shootingClicked = 0;
 
-      this.ikarus = new Ikarus();
+      this.ikarus = new IK3();
       this.ikarus.position.y = 270;
 
       this.instruction = new PIXI.Text("FLYING", { font: "36px Silkscreen", fill: '#ffd9aa', stroke: '#552f00', align: "left" });
@@ -1262,15 +1262,20 @@ of the Royal Yugoslav Air Force by the Luftwaffe.";
               break;
             }
           }
+
+          if (this.shootingClicked ===7) {
+            var scrn = new FirstLevelScreen();
+            win.franjo.game.setScreen(scrn);
+          }
         }
       }
 
       if (e.keyCode == 32) {
-        if (this.instructionState == 0) {
+        if (this.instructionState === 0) {
           this.flyingClicked += 1;
           this.counter.setText(7 - this.flyingClicked);
 
-          if (this.flyingClicked == 7) {
+          if (this.flyingClicked === 7) {
             this.setSecondInstructions();
           }
         } 
@@ -1279,6 +1284,131 @@ of the Royal Yugoslav Air Force by the Luftwaffe.";
       }
     };
 
+
+    /**
+      FirstLevelScreen
+    */
+
+
+    var FirstLevelScreen = function () {
+      this.assetsToLoader = [
+        "assets/images/sprite_ikarus_1.png",
+        "assets/images/sprite_ikarus_2.png",
+        "assets/images/sprite_oerlikon_1.png",
+        "assets/images/sprite_oerlikon_2.png",        
+        "assets/images/sprite_bullet.png",
+        "assets/images/sprite_circle.png"        
+      ];
+      this.soundsToLoad = [];
+      this.bullets = [];
+
+      Screen.call(this);
+    };
+
+    FirstLevelScreen.prototype = Object.create(Screen.prototype);
+    FirstLevelScreen.prototype.constructor = FirstLevelScreen;
+
+    FirstLevelScreen.prototype.init = function () {
+      var self = this;
+
+      this.shootingClicked = 0;
+
+      // Define boundaries for IK3
+      this.ikarus = new IK3();
+      this.ikarus.position.y = 270;
+
+      this.gun1 = new PIXI.Sprite(PIXI.Texture.fromFrame("assets/images/sprite_oerlikon_1.png"));
+      this.gun1.position.x = 50;   
+      this.gun1.position.y = 530;
+
+      this.gun2 = new PIXI.Sprite(PIXI.Texture.fromFrame("assets/images/sprite_oerlikon_2.png"));
+      this.gun2.position.x = 50;   
+      this.gun2.position.y = 530;
+
+      this.thing = new PIXI.Graphics();
+      this.gun1.addChild(this.thing);
+//      stage.addChild(thing);
+      this.thing.position.x = 0;
+      this.thing.position.y = 0;
+      this.showGun();
+      this.gun1.mask = this.thing;
+
+      this.container.addChild(this.ikarus);
+      this.container.addChild(this.gun2);
+      this.container.addChild(this.gun1);
+
+      win.franjo.data.stage.interactive = true;
+
+      this._changed = false;
+
+      this.operations.push(new Work({
+        'init': function () {
+          this.i = 0;
+        },
+        'callback': function () {
+          self.ikarus.update();
+
+          if (this._changed) {
+            this._changed = false;
+            return;
+          }
+
+          this.i += 1;
+
+          if (this.i % 20 === 0) {
+            this.i = 0;
+
+            self.showGun();
+
+            if (self.shootingClicked > 0) {
+              self.shootingClicked -= 1;
+            } 
+          }
+        }
+      }));
+
+    };
+
+    FirstLevelScreen.prototype.showGun = function () {
+      this.thing.clear();
+      this.thing.beginFill(0x8bc5ff, 0.4);    
+      this.thing.drawRect(this.shootingClicked * 10, 0, 128, 50);
+      this.thing.endFill();
+    };
+
+    FirstLevelScreen.prototype.onKeyDown = function (e) {
+      if (e.keyCode == 13) {
+        if (this.shootingClicked < 13) {
+          this.shootingClicked += 1;
+
+          this.showGun();
+          this._changed = true;
+        }
+
+          /*
+          for (var i = 0; i < this.bullets.length; i++) {
+            if (this.bullets[i].visible == false) {
+
+              var self = this;
+              var bullet = self.bullets[i];
+              bullet._y = (self.ikarus.angle < 0? -1: 1) * Math.sin(Math.abs(self.ikarus.rotation));
+              bullet._x = Math.cos(Math.abs(self.ikarus.rotation));
+
+              bullet.position.x = self.ikarus.position.x;   
+              bullet.position.y = self.ikarus.position.y;
+              bullet.visible = true;
+
+              break;
+            }
+            
+          }
+        } */
+      }
+
+      if (e.keyCode == 32) {
+        this.ikarus.speedUp();
+      }
+    };
 
 
     /**
