@@ -33,14 +33,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     };
   })();
 
-
   win.franjo.objects = (function () {
 
     /**
       ButtonNext
     */
     var ButtonNext = function () {
-      PIXI.DisplayObjectContainer.call( this );
+      PIXI.Container.call( this );
 
       var self = this;
 
@@ -52,11 +51,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       this.button.buttonMode = true
 
       this.button.mouseover = function (e) {
-        this.setTexture(self.texture2);
+        this.texture = self.texture2;
       };
 
       this.button.mouseout = function (e) {
-        this.setTexture(self.texture1);
+        this.texture = self.texture1;
       };
 
       this.button.click = this.button.tap = function (e) {
@@ -66,7 +65,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       this.addChild(this.button);
     };
 
-    ButtonNext.prototype = Object.create(PIXI.DisplayObjectContainer.prototype);
+    ButtonNext.prototype = Object.create(PIXI.Container.prototype);
     ButtonNext.prototype.constructor = ButtonNext;
 
 
@@ -76,12 +75,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     */
 
     var ChatBubble = function (obj) {
-      PIXI.DisplayObjectContainer.call( this );
+      PIXI.Container.call( this );
 
       this.obj = obj;
       this.visible = false;
 
-      this.text = new PIXI.Text("", { font: "18px Silkscreen", fill: '#ffd5aa', align: "left" });
+      this.text = new PIXI.Text("", { fontSize: "18px", fontFamily: "Silkscreen", fill: '#ffd5aa', align: "left" });
       this.text.position.x = 4;
       this.text.position.y = 4;
 
@@ -91,7 +90,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       this.addChild(this.graphics);
     };
 
-    ChatBubble.prototype = Object.create(PIXI.DisplayObjectContainer.prototype);
+    ChatBubble.prototype = Object.create(PIXI.Container.prototype);
     ChatBubble.prototype.constructor = ChatBubble;
 
     ChatBubble.prototype.hide = function (text) {
@@ -99,7 +98,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     };
 
     ChatBubble.prototype.sayText = function (text) {
-      this.text.setText(text);
+      this.text.text = text;
 
       // Get position of the object
       var posx = this.obj.position.x;
@@ -218,7 +217,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     var Screen = function () {
       var self = this;
 
-      this.container = new PIXI.DisplayObjectContainer();
+      this.container = new PIXI.Container();
 
       this.isReady = false;
       this._audioReady = false;
@@ -243,17 +242,17 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       }
 
       if (this.assetsToLoader.length > 0) {
-        this.loader = new PIXI.AssetLoader(this.assetsToLoader, true);
+        this.loader = new PIXI.loaders.Loader();        
+        this.loader.add(this.assetsToLoader);
 
-        this.loader.onProgress = function (e) {
-          self._progressHasLoaded += 1;
-          self._onProgress.call(self);          
-        };
-
-        this.loader.onComplete = function () {
+        this.loader.on('progress', function () {
+           self._progressHasLoaded += 1;
+           self._onProgress.call(self);          
+        });
+        this.loader.on('complete', function () {
           self._assetsReady = true;
           self._check.call(self);
-        };
+        });
 
         this.loader.load();
       } else {  
@@ -466,7 +465,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       this.lightpole3.position.y = 340;
 
 
-      var titleText = new PIXI.Text("Tripartite Pact", { font: "24px SilkscreenBold", fill: '#552f00', stroke: '#552f00', align: "left" });
+      var titleText = new PIXI.Text("Tripartite Pact", { fontSize: "24px", fontFamily: "SilkscreenBold", fill: '#552f00', stroke: '#552f00', align: "left" });
       titleText.position.x = 20;
       titleText.position.y = 20;
 
@@ -477,7 +476,7 @@ Germany, Italy, and Japan. This was result of a pressure\n\
 and ultimatums from German side. Had it not complied,\n\
 Yugoslavia would be occupied by Axis powers.";
 
-      var descText = new PIXI.Text(descMessage, { font: "18px Silkscreen", fill: '#552f00', align: "left"});
+      var descText = new PIXI.Text(descMessage, { fontSize: "18px", fontFamily: "Silkscreen", fill: '#552f00', align: "left"});
       descText.position.x = 20;
       descText.position.y = 55;
 
@@ -603,7 +602,7 @@ Yugoslavia would be occupied by Axis powers.";
       this.lightpole3.position.y = 260;
 
 
-      var titleText = new PIXI.Text("Coup d'etat ", { font: "24px SilkscreenBold", fill: '#552f00', stroke: '#552f00', align: "left" });
+      var titleText = new PIXI.Text("Coup d'etat ", { fontSize: "24px", fontFamily: "SilkscreenBold", fill: '#552f00', stroke: '#552f00', align: "left" });
       titleText.position.x = 20;
       titleText.position.y = 20;
 
@@ -615,7 +614,7 @@ Karadordevic. It had been planned for several months,\n\
 but the signing of the Tripartite Pact spurred the\n\
 organisers to carry it out.";
 
-      var descText = new PIXI.Text(descMessage, { font: "18px Silkscreen", fill: '#552f00', align: "left", strokeThickness: 0, dropShadow : false});
+      var descText = new PIXI.Text(descMessage, { fontSize: "18px", fontFamily: "Silkscreen", fill: '#552f00', align: "left", strokeThickness: 0, dropShadow : false});
       descText.position.x = 20;
       descText.position.y = 55;
 
@@ -718,7 +717,7 @@ organisers to carry it out.";
 
 
 
-      var titleText = new PIXI.Text("binarni.net", { font: "80px Silkscreen", fill: '#000000', stroke: '#000000', align: "left" });
+      var titleText = new PIXI.Text("binarni.net", { fontSize: "80px", fontFamily: "Silkscreen", fill: '#000000', stroke: '#000000', align: "left" });
       titleText.position.x = 400 - titleText.width / 2;
       titleText.position.y = 200;
 
@@ -789,7 +788,7 @@ organisers to carry it out.";
       this.krst.position.x = 210 + 198;
       this.krst.position.y = 390;
 
-      var titleText = new PIXI.Text("Fuhrer Directive No. 25", { font: "24px SilkscreenBold", fill: '#552f00', stroke: '#552f00', align: "left" });
+      var titleText = new PIXI.Text("Fuhrer Directive No. 25", { fontSize: "24px", fontFamily: "SilkscreenBold", fill: '#552f00', stroke: '#552f00', align: "left" });
       titleText.position.x = 20;
       titleText.position.y = 20;
 
@@ -800,8 +799,8 @@ with unconditional surrender of the Royal Yugoslav Army\n\
 overwhelming air attack on Belgrade and facilities\n\
 of the Royal Yugoslav Air Force by the Luftwaffe.";
       
-      var descText = new PIXI.Text(desc, { font: "18px Silkscreen", fill: '#552f00', align: "left" });
-      descText.setText(desc);
+      var descText = new PIXI.Text(desc, { fontSize: "18px", fontFamily: "Silkscreen", fill: '#552f00', align: "left" });
+      descText.text = desc;
       descText.position.x = 20;
       descText.position.y = 55;
 
@@ -846,23 +845,20 @@ of the Royal Yugoslav Air Force by the Luftwaffe.";
 
     /**
       IK3
-
-
     */
 
     var IK3 = function () {
-      var frames = [
-        PIXI.Texture.fromFrame('assets/images/sprite_ikarus_1.png'),
-        PIXI.Texture.fromFrame('assets/images/sprite_ikarus_2.png'),
-      ];
+      PIXI.extras.MovieClip.call(this, _.map(IK3.assetsToLoad, function (el) {
+        return PIXI.Texture.fromFrame(el);
+      }));
 
-      PIXI.MovieClip.call(this, frames);
       this.anchor.set(0.7, 0.5);
       this.speed = new PIXI.Point();
       this.gravity = 0.2;
       this.position.x = 150;
       this.maxSpeed = 10;
       this.rotation = 0;
+      this.loop = true
 
       this.scale.x = 0.5;
       this.scale.y = 0.5;
@@ -870,13 +866,18 @@ of the Royal Yugoslav Air Force by the Luftwaffe.";
       this.angle = 0;
       this.strangeThings = [];
 
-      this.play();
       this.animationSpeed = 0.4;
+      this.play();
 
       this._z = 0;
     };
 
-    IK3.prototype = Object.create(PIXI.MovieClip.prototype);
+    IK3.assetsToLoad = [
+      'assets/images/sprite_ikarus_1.png',
+      'assets/images/sprite_ikarus_2.png'
+      ];
+
+    IK3.prototype = Object.create(PIXI.extras.MovieClip.prototype);
 
     IK3.prototype.speedUp = function () {
       var self = this;
@@ -888,7 +889,7 @@ of the Royal Yugoslav Air Force by the Luftwaffe.";
       });
     };
 
-    IK3.prototype.update = function () {      
+    IK3.prototype.updatePlane = function () {      
       this.speed.y += this.gravity;
       this.speed.y = Math.min(this.speed.y, this.maxSpeed);
       this.speed.y = Math.max(this.speed.y, -this.maxSpeed);
@@ -931,7 +932,8 @@ of the Royal Yugoslav Air Force by the Luftwaffe.";
         this.strangeThings.splice(0, 1);
       }
 
-      this.rotation = 0.01745 * this.angle;
+      this.rotation = 0.01745 * this.angle/2;
+//      PIXI.extras.MovieClip.update.call();
     };
 
     IK3.prototype.reset = function () {
@@ -941,6 +943,44 @@ of the Royal Yugoslav Air Force by the Luftwaffe.";
       this.angle = 0;
       this.strangeThings = [];
     };
+
+    /**
+
+    BF109
+    */
+
+    var BF109 = function () {
+      PIXI.extras.MovieClip.call(this, _.map(BF109.assetsToLoad, function (el) {
+        return PIXI.Texture.fromFrame(el);
+      }));
+
+      this.anchor.set(0.7, 0.5);
+      this.speed = new PIXI.Point();
+      this.gravity = 0.2;
+      this.position.x = 150;
+      this.maxSpeed = 10;
+      this.rotation = 0;
+      this.loop = true
+
+      this.scale.x = 0.5;
+      this.scale.y = 0.5;
+
+      this.angle = 0;
+      this.strangeThings = [];
+
+      this.animationSpeed = 0.5;
+      this.play();
+
+      this._z = 0;
+    };
+
+    BF109.assetsToLoad = [
+      'assets/images/sprite_bf109_1.png',
+      'assets/images/sprite_bf109_2.png'
+      ];
+
+    BF109.prototype = Object.create(PIXI.extras.MovieClip.prototype);
+
 
 
     /**
@@ -979,17 +1019,17 @@ of the Royal Yugoslav Air Force by the Luftwaffe.";
       this.ikarus = new IK3();
       this.ikarus.position.y = 270;
 
-      this.instruction = new PIXI.Text("FLYING", { font: "36px Silkscreen", fill: '#ffd9aa', stroke: '#552f00', align: "left" });
+      this.instruction = new PIXI.Text("FLYING", { fontSize: "36px", fontFamily: "Silkscreen", fill: '#ffd9aa', stroke: '#552f00', align: "left" });
       this.instruction.position.x = 400 - this.instruction.width / 2;
       this.instruction.position.y = 50;
       this.container.addChild(this.instruction);
 
-      this.instruction2 = new PIXI.Text("TOUCH LEFT SIDE OF SCREEN", { font: "20px Silkscreen", fill: '#ffd9aa', stroke: '#552f00', align: "center" });
+      this.instruction2 = new PIXI.Text("TOUCH LEFT SIDE OF SCREEN", { fontSize: "20px", fontFamily: "Silkscreen", fill: '#ffd9aa', stroke: '#552f00', align: "center" });
       this.instruction2.position.x = 50;
       this.instruction2.position.y = 390;
       this.container.addChild(this.instruction2);
 
-      this.instruction3 = new PIXI.Text("PRESS SPACE", { font: "20px Silkscreen", fill: '#ffd9aa', stroke: '#552f00', align: "center" });
+      this.instruction3 = new PIXI.Text("PRESS SPACE", { fontSize: "20px", fontFamily: "Silkscreen", fill: '#ffd9aa', stroke: '#552f00', align: "center" });
       this.instruction3.position.x = 570;
       this.instruction3.position.y = 390;
       this.container.addChild(this.instruction3);
@@ -1000,10 +1040,10 @@ of the Royal Yugoslav Air Force by the Luftwaffe.";
 
       this.graphics = new PIXI.Graphics();
       this.graphics.position.set(140 + 30, 450);
-      var f = new PIXI.PixelateFilter();
-      f.size.x = 4;
-      f.size.y = 4;
-      this.graphics.filters = [f];
+//      var f = new PIXI.PixelateFilter();
+//      f.size.x = 4;
+//      f.size.y = 4;
+//      this.graphics.filters = [f];
       this.container.addChild(this.graphics);
 
 
@@ -1026,7 +1066,7 @@ of the Royal Yugoslav Air Force by the Luftwaffe.";
       this.circle.position.y = 220;
       this.container.addChild(this.circle);
 
-      this.counter = new PIXI.Text("7", { font: "32px Silkscreen", fill: '#ffd9aa', stroke: '#552f00', align: "center" });
+      this.counter = new PIXI.Text("7", { fontSize: "32px", fontFamily: "Silkscreen", fill: '#ffd9aa', stroke: '#552f00', align: "center" });
       this.counter.position.x = 624;
       this.counter.position.y = 224;
       this.container.addChild(this.counter);
@@ -1093,7 +1133,7 @@ of the Royal Yugoslav Air Force by the Luftwaffe.";
           }
 
           if (this.marked === 0) {
-            self.space.setTexture(handTexture01);
+            self.space.texture = handTexture01;
             this.marked = -1;
           }
 
@@ -1105,7 +1145,7 @@ of the Royal Yugoslav Air Force by the Luftwaffe.";
             self.hand2.position.y = 490;
             this.direction2 = 0;
             this.marked = 5;
-            self.space.setTexture(handTexture02);
+            self.space.texture = handTexture02;
           } 
 
           if (self.hand2.position.y > 520) {
@@ -1172,7 +1212,7 @@ of the Royal Yugoslav Air Force by the Luftwaffe.";
           }
 
           if (this.marked === 0) {
-            self.space.setTexture(self.enterTexture01);
+            self.space.texture = self.enterTexture01;
             this.marked = -1;
           }
 
@@ -1184,7 +1224,7 @@ of the Royal Yugoslav Air Force by the Luftwaffe.";
             self.hand2.position.y = 490;
             this.direction2 = 0;
             this.marked = 5;
-            self.space.setTexture(self.enterTexture02);
+            self.space.texture = self.enterTexture02;
           } 
 
           if (self.hand2.position.y > 520) {
@@ -1204,8 +1244,8 @@ of the Royal Yugoslav Air Force by the Luftwaffe.";
       win.franjo.data.stage.interactive = true;
 
       this.operations.push(new Work({
-        'callback': function () {
-          self.ikarus.update();
+        'callback': function () {          
+          self.ikarus.updatePlane();
         }
       }));
     };
@@ -1220,16 +1260,16 @@ of the Royal Yugoslav Air Force by the Luftwaffe.";
 
       this.instructionState = 1;
 
-      this.instruction.setText('SHOOTING');
+      this.instruction.text = 'SHOOTING';
       this.instruction.position.x = 400 - this.instruction.width / 2;
 
-      this.instruction2.setText('PRESS ENTER');
+      this.instruction2.text = 'PRESS ENTER';
       this.instruction2.position.x = 100;
 
-      this.instruction3.setText('TOUCH RIGHT SIDE OF SCREEN');
+      this.instruction3.text = 'TOUCH RIGHT SIDE OF SCREEN';
       this.instruction3.position.x = 400;
 
-      this.space.setTexture(this.enterTexture01);
+      this.space.texture = this.enterTexture01;
       this.space.position.x = 130;   
 
       this.hand.position.x = 540;   
@@ -1237,7 +1277,7 @@ of the Royal Yugoslav Air Force by the Luftwaffe.";
 
       this.hand2.position.x = 180;   
 
-      this.counter.setText("7");
+      this.counter.text = "7";
     };
 
     InstructionsScreen.prototype.onKeyDown = function (e) {
@@ -1245,7 +1285,7 @@ of the Royal Yugoslav Air Force by the Luftwaffe.";
         if (this.instructionState == 1) {
           this.shootingClicked += 1;
 
-          this.counter.setText(7 - this.shootingClicked);
+          this.counter.text = 7 - this.shootingClicked;
 
           for (var i = 0; i < this.bullets.length; i++) {
             if (this.bullets[i].visible == false) {
@@ -1273,7 +1313,7 @@ of the Royal Yugoslav Air Force by the Luftwaffe.";
       if (e.keyCode == 32) {
         if (this.instructionState === 0) {
           this.flyingClicked += 1;
-          this.counter.setText(7 - this.flyingClicked);
+          this.counter.text = 7 - this.flyingClicked;
 
           if (this.flyingClicked === 7) {
             this.setSecondInstructions();
@@ -1284,21 +1324,71 @@ of the Royal Yugoslav Air Force by the Luftwaffe.";
       }
     };
 
+    /**
+      Duck
+    */
+
+    var Duck = function () {
+      PIXI.extras.MovieClip.call(this, _.map(Duck.assetsToLoad, function (el) {
+        return PIXI.Texture.fromFrame(el)
+      }));
+
+      this.scale.x = 0.2;
+      this.scale.y = 0.2;
+      this.animationSpeed = 0.2;
+    };
+
+    Duck.assetsToLoad = [
+        "assets/images/sprite_duck_1.png", 
+        "assets/images/sprite_duck_2.png", 
+        "assets/images/sprite_duck_3.png", 
+        "assets/images/sprite_duck_4.png",  
+        "assets/images/sprite_duck_5.png", 
+        "assets/images/sprite_duck_6.png", 
+        "assets/images/sprite_duck_7.png", 
+        "assets/images/sprite_duck_8.png", 
+        "assets/images/sprite_duck_9.png"
+        ];
+
+    Duck.prototype = Object.create(PIXI.extras.MovieClip.prototype);
+
+    /**
+      Cloud
+    */
+
+    var Cloud = function (cloudID) {
+        var texture = PIXI.Texture.fromFrame(Cloud.assetsToLoad[cloudID]);
+        PIXI.Sprite.call(this, texture);
+
+        this._speed = _.random(1, 3);        
+    };
+    
+    Cloud.assetsToLoad = [
+        "assets/images/sprite_cloud_3.png",
+        "assets/images/sprite_cloud_4.png",        
+    ];
+
+    Cloud.prototype = Object.create(PIXI.Sprite.prototype);
+
 
     /**
       FirstLevelScreen
     */
 
-
     var FirstLevelScreen = function () {
-      this.assetsToLoader = [
-        "assets/images/sprite_ikarus_1.png",
-        "assets/images/sprite_ikarus_2.png",
+      this.assetsToLoader = _.union([
         "assets/images/sprite_oerlikon_1.png",
         "assets/images/sprite_oerlikon_2.png",        
         "assets/images/sprite_bullet.png",
-        "assets/images/sprite_circle.png"        
-      ];
+        "assets/images/sprite_circle.png",
+        "assets/images/sprite_cloud_3.png"
+      ],
+      IK3.assetsToLoad,
+      Duck.assetsToLoad,
+      Cloud.assetsToLoad,
+      BF109.assetsToLoad
+      );
+
       this.soundsToLoad = [];
       this.bullets = [];
 
@@ -1313,9 +1403,21 @@ of the Royal Yugoslav Air Force by the Luftwaffe.";
 
       this.shootingClicked = 0;
 
+      // Duck
+      self.duck = new Duck();
+      self.duck.position.x = 900;
+      self.duck.position.y = 100;
+      self.duck.play();
+
+      this.bulletTexture = PIXI.Texture.fromFrame("assets/images/sprite_bullet.png");
+
       // Define boundaries for IK3
       this.ikarus = new IK3();
       this.ikarus.position.y = 270;
+
+      this.bf109 = new BF109();
+      this.bf109.position.y = 200;
+      this.bf109.position.x = 900;
 
       this.gun1 = new PIXI.Sprite(PIXI.Texture.fromFrame("assets/images/sprite_oerlikon_1.png"));
       this.gun1.position.x = 50;   
@@ -1333,7 +1435,86 @@ of the Royal Yugoslav Air Force by the Luftwaffe.";
       this.showGun();
       this.gun1.mask = this.thing;
 
+      this.clouds = _(6).times(function (n) {
+        var cloud = new Cloud(_.random(0, 1));
+        cloud.position.x = _.random(900);
+        cloud.position.y = _.random(210, 320);
+
+        return cloud;
+      });
+
+      _.each(this.clouds, function (cloud) {
+        self.container.addChild(cloud);
+      });
+
+      _(20).times(function (idx) {
+          var bullet  = new PIXI.Sprite(self.bulletTexture);
+          bullet.position.x = -100;   
+          bullet.position.y = -100;
+          bullet.visible = false;
+
+          self.bullets.push(bullet);    
+
+          self.container.addChild(bullet);
+      });
+
+
+      this.operations.push(new Work({
+        'callback': function () {
+
+          self.duck.position.x -= 2;
+          if (self.duck.position.x < -100) {
+            self.duck.position.x = 900;            
+          }
+
+          _.each(self.bullets, function (bullet, idx) {
+            if (bullet.visible === false) {              
+              return;
+            }
+
+            if (bullet.position.x > self.bf109.position.x -3 && bullet.position.x  <= self.bf109.position.x+self.bf109.width+3 &&
+              bullet.position.y > self.bf109.position.y -3 && bullet.position.y <= self.bf109.position.y + self.bf109.height+3) {
+              bullet.visible = false;
+              self.bf109.position.x = 900;
+              self.bf109.position.y = _.random(20, 400);
+            }
+              
+            bullet.position.x += 20 * bullet._x;
+            bullet.position.y += 20 * bullet._y;
+
+            if (bullet.position.x > 800) {
+              bullet.visible = false;
+            }
+          });
+
+          self.bf109.position.x -= 10;
+          if (self.bf109.position.x < -100) {
+            self.bf109.position.x = 900;
+            self.bf109.position.y = _.random(20, 400);
+          }
+
+
+
+
+
+          _.each(self.clouds, function (cloud) {
+            cloud.position.x -= cloud._speed;
+
+            if (cloud.position.x < -100) {
+              cloud._speed = _.random(1, 3);
+              cloud.position.x = 900 + _.random(100);
+              cloud.position.y = _.random(10, 380);
+            }
+          });
+        }
+      }));
+
+
+      this.container.addChild(this.bf109);
       this.container.addChild(this.ikarus);
+
+      this.container.addChild(this.duck);
+
       this.container.addChild(this.gun2);
       this.container.addChild(this.gun1);
 
@@ -1346,8 +1527,8 @@ of the Royal Yugoslav Air Force by the Luftwaffe.";
           this.i = 0;
         },
         'callback': function () {
-          self.ikarus.update();
-
+          self.ikarus.updatePlane();
+  
           if (this._changed) {
             this._changed = false;
             return;
@@ -1383,12 +1564,9 @@ of the Royal Yugoslav Air Force by the Luftwaffe.";
 
           this.showGun();
           this._changed = true;
-        }
 
-          /*
           for (var i = 0; i < this.bullets.length; i++) {
             if (this.bullets[i].visible == false) {
-
               var self = this;
               var bullet = self.bullets[i];
               bullet._y = (self.ikarus.angle < 0? -1: 1) * Math.sin(Math.abs(self.ikarus.rotation));
@@ -1400,9 +1578,8 @@ of the Royal Yugoslav Air Force by the Luftwaffe.";
 
               break;
             }
-            
-          }
-        } */
+          }          
+        }
       }
 
       if (e.keyCode == 32) {
@@ -1439,7 +1616,7 @@ of the Royal Yugoslav Air Force by the Luftwaffe.";
       if (_.isUndefined(text)) {
         this.playText.visible = false;
       } else {
-        this.playText.setText(text);
+        this.playText.text = text;
         this.playText.position.x = 400 - this.playText.width / 2;
         this.playText.position.y = 530;
         this.playText.visible = true;
@@ -1512,7 +1689,7 @@ of the Royal Yugoslav Air Force by the Luftwaffe.";
 
       this.avion.click = this.avion.tap = function (e) {
         self.sound.fade(1.0, 0, 2000);
-        self.container.filters = [new PIXI.PixelateFilter()];
+//        self.container.filters = [new PIXI.PixelateFilter()];
       };
 
       this.clouds = _(6).times(function (n) {
@@ -1524,11 +1701,11 @@ of the Royal Yugoslav Air Force by the Luftwaffe.";
         return cloud;
       });
 
-      var franjoText = new PIXI.Text("FRANJO KLUZ", { font: "58px SilkscreenBold", fill: '#552f00', stroke: '#552f00', align: "left" });
+      var franjoText = new PIXI.Text("FRANJO KLUZ", { fontSize: "58px", fontFamily: "SilkscreenBold", fill: '#552f00', stroke: '#552f00', align: "left" });
       franjoText.position.x = 100;
       franjoText.position.y = 30;
 
-      this.playText = new PIXI.Text("", { font: "40px Silkscreen", fill: '#552f00', stroke: '#552f00', align: "left" });
+      this.playText = new PIXI.Text("", { fontSize: "40px", fontFamily: "Silkscreen", fill: '#552f00', stroke: '#552f00', align: "left" });
 
 
       this.beta = new PIXI.Sprite(PIXI.Texture.fromFrame("assets/images/beta.png"));
@@ -1610,8 +1787,7 @@ of the Royal Yugoslav Air Force by the Luftwaffe.";
 
 
     var animate = function () {
-        requestAnimFrame(animate);
-
+        requestAnimationFrame(animate);
         if (before) {
             var now = new Date().getTime();
             var diff = now - before;
@@ -1635,10 +1811,10 @@ of the Royal Yugoslav Air Force by the Luftwaffe.";
 
 
     var _init = function () {
-      win.franjo.data.stage = new PIXI.Stage(0xaa7839);
+      win.franjo.data.stage = new PIXI.Container();
       win.franjo.data.stage.interactive = true;
 
-      win.franjo.data.renderer = PIXI.autoDetectRenderer(800, 600);
+      win.franjo.data.renderer = PIXI.autoDetectRenderer(800, 600, {backgroundColor: '0xaa7839'});
 
       win.franjo.data.stage.tap = function (e) {
         if (win.franjo.data.currentScreen.isReady) {
@@ -1658,7 +1834,7 @@ of the Royal Yugoslav Air Force by the Luftwaffe.";
 
       showFirstScreen();
 
-      requestAnimFrame(animate);
+      requestAnimationFrame(animate);
     };
 
     return {
