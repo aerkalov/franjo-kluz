@@ -230,7 +230,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
       this._progressToLoad = this.assetsToLoader.length + (this.soundsToLoad.length > 0 ? 0 : 1);
       this._progressHasLoaded = 0;
-      this._progressEnabled = this._progressEnabled || true;
+      this._progressEnabled = (this._progressEnabled !== undefined) ? this._progressEnabled : true;
 
       if (this._progressEnabled) {
         this._progressGraphics = new PIXI.Graphics();
@@ -701,6 +701,7 @@ organisers to carry it out.";
       this.assetsToLoader = [
         "assets/images/logo_small.png"
       ];
+      this._progressEnabled = false;
 
       Screen.call(this);
     };
